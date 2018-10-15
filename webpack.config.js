@@ -8,18 +8,18 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     mode: 'development',
     context: resolve(__dirname, 'src'),
-    entry: [
-        'webpack-dev-server/client?http://localhost:8080',
+    entry: {
+        'client-dev':'webpack-dev-server/client?http://localhost:8080',
         // bundle the client for webpack-dev-server
         // and connect to the provided endpoint
-        'webpack/hot/only-dev-server',
+        'dev-server':'webpack/hot/only-dev-server',
         // bundle the client for hot reloading
         // only- means to only hot reload for successful updates
-        './index.ts'
-        // the entry point of our app
-    ],
+        'index':'./index.ts',
+        'game':'./game/index.ts'
+    },
     output: {
-        filename: 'index.js',
+        filename: '[name]/index.js',
         // the output bundle
         path: resolve(__dirname, 'dist'), 
         publicPath: '/'
@@ -39,7 +39,7 @@ module.exports = {
         // minimize the output to terminal.
         contentBase: resolve(__dirname, 'src'),
         // match the output path
-        publicPath: '/'
+        publicPath: '/',
         // match the output `publicPath`
     },
     module: {
@@ -98,7 +98,14 @@ module.exports = {
         // enable HMR globally
         new webpack.NamedModulesPlugin(),
         // prints more readable module names in the browser console on HMR updates
-        new HtmlWebpackPlugin({template: resolve(__dirname, 'src/index.html')}),
+        new HtmlWebpackPlugin({
+            filename: 'index.html', 
+            template: resolve(__dirname, 'src/index.html'),
+            chunks: ['index']}),
+        new HtmlWebpackPlugin({
+            filename: 'game/index.html',
+            template: resolve(__dirname, 'src/game/index.html'),
+            chunks: ['game']}),
         // inject <script> in html file. 
         new OpenBrowserPlugin({url: 'http://localhost:8080'}),
     ],

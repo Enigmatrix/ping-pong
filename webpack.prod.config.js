@@ -7,7 +7,10 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
     mode: 'production',
     context: resolve(__dirname, 'src'),
-    entry: './index.ts',
+    entry: [
+        './index.ts',
+        './game/index.ts'
+    ],
     output: {
         filename: 'index.js',
         path: resolve(__dirname, 'dist'), 

@@ -2,7 +2,6 @@
   "name": "ping-pong",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.{ts}' --exclude 'src/tests/*.{ts}'",
     "start": "webpack-dev-server",
@@ -24,7 +23,9 @@
   "homepage": "https://github.com/Enigmatrix/ping-pong#readme",
   "dependencies": {
     "@types/node": "10.3.4",
-    "antd": "3.6.3"
+    "@types/three": "^0.93.1",
+    "antd": "3.6.3",
+    "three": "^0.97.0"
   },
   "devDependencies": {
     "@types/enzyme": "3.1.10",
