@@ -1,3 +1,6 @@
+dist/
+built/
+
 # Logs
 logs
 *.log
