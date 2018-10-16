@@ -1,12 +1,19 @@
 import "file-loader!./index.html";
 import * as THREE from "THREE";
-import {WebGLRenderer, PerspectiveCamera, Scene, DirectionalLight, Light, JSONLoader, Geometry, Material, ImageUtils, Texture, MeshPhongMaterial, RepeatWrapping, Mesh, MeshFaceMaterial, NumberKeyframeTrack, Vector3, PointLight, SpotLight, DoubleSide, PlaneGeometry} from "THREE";
+import {WebGLRenderer, PerspectiveCamera, Scene, DirectionalLight, Light, JSONLoader, Geometry, Material, ImageUtils, Texture, MeshPhongMaterial, RepeatWrapping, Mesh, MeshFaceMaterial, NumberKeyframeTrack, Vector3, PointLight, SpotLight, DoubleSide, PlaneGeometry, TextureLoader} from "THREE";
+import Table from "./table";
+import { loadTexture } from "./util";
 
 export default class Game {
     public renderer: WebGLRenderer;
     public camera: PerspectiveCamera;
     public scene: Scene;
     public light: Light;
+    public jsonLoader: JSONLoader;
+    public textureLoader: TextureLoader;
+
+    public table: Table;
+
     public settings = {
         width: 10,
         height: 5,
@@ -35,8 +42,8 @@ export default class Game {
         window.scene = this.scene;
         window.THREE = THREE;
         this.camera = new PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 20);
-		this.scene.add(this.camera);
-		this.camera.position.set(0, this.settings.width/2,this.settings.depth/2);
+        this.scene.add(this.camera);
+        this.camera.position.set(0, this.settings.width / 2, this.settings.depth / 2);
         this.camera.lookAt(this.scene.position);
         
         let light = new PointLight(0xffffff);
@@ -55,8 +62,11 @@ export default class Game {
         });
     }
     async init() {
-        let loader = new JSONLoader();
-        await Promise.all([this.loadPlanes(), this.loadTable(loader)]);
+        this.jsonLoader = new JSONLoader();
+        this.textureLoader = new TextureLoader();
+
+        await this.loadPlanes();
+        this.table = await Table.setup(this);
 
         requestAnimationFrame(this.render.bind(this));
     }
@@ -71,7 +81,7 @@ export default class Game {
         ];
         for (let i = 0; i < planes.length; i++) {
             let plane = planes[i];
-            let planeMaterial = new MeshPhongMaterial({ map: ImageUtils.loadTexture(plane.texture), side: DoubleSide}); 
+            let planeMaterial = new MeshPhongMaterial({ map: await loadTexture(plane.texture, this.textureLoader), side: DoubleSide}); 
             if(!planeMaterial || !planeMaterial.map) return; 
             planeMaterial.map.wrapS = RepeatWrapping; 
             planeMaterial.map.wrapT = RepeatWrapping; 
@@ -92,38 +102,6 @@ export default class Game {
             }
             this.scene.add(planeMesh);
         }
-    }
-    async loadTable(loader: JSONLoader){
-        let {geometry, materials} = await this.loadJSON("../assets/models/table.js", loader);
-        let texture = ImageUtils.loadTexture("../assets/images/table.jpg");
-        texture.repeat.x = 0.1;
-        texture.repeat.y = 0.03;
-        texture.wrapS = RepeatWrapping
-        texture.wrapT = RepeatWrapping;
-        materials[1] = new MeshPhongMaterial({ specular: 0x777777, map: texture });
-        let table = new Mesh(geometry, new MeshFaceMaterial(materials));
-        geometry.computeBoundingBox();
-        let boundingBox = geometry.boundingBox;
-        let modelSize = {
-            width: boundingBox.max.x - boundingBox.min.x, 
-            depth: boundingBox.max.z - boundingBox.min.z, 
-            height: boundingBox.max.y - boundingBox.min.y
-        };
-                        
-        let scale = this.settings.tableWidth / modelSize.width;
-        table.scale.set(scale, scale, scale);
-        this.tableSize = {width: modelSize.width * scale, depth: modelSize.depth * scale, height: modelSize.height * scale, scale: scale};
-        
-        this.camera.position.set(0, this.tableSize.height * 1.7, this.tableSize.depth/2 * 2.3);
-        this.camera.lookAt(new Vector3(0, this.tableSize.height, 0));
-        table.matrixAutoUpdate = false;
-        table.updateMatrix();
-        this.scene.add(table);
-    }
-    loadJSON(url: string, loader: JSONLoader): Promise<{ geometry: Geometry, materials: Material[]}> {
-        return new Promise(resolve => {
-            loader.load(url, (g, m) => resolve({geometry: g, materials: m}));
-        });
     }
     update() {
         

@@ -43,13 +43,13 @@ module.exports = {
         // match the output `publicPath`
     },
     module: {
-        rules: [
+        rules: [/*
             {
                 enforce: "pre",                
                 test: /\.(ts)?$/, 
                 loader: 'tslint-loader',
                 exclude: [resolve(__dirname, "node_modules")],
-            },             
+            },*/
             { 
                 test: /\.(ts)?$/, 
                 use: [
