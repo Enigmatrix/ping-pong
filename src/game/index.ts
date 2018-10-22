@@ -3,6 +3,15 @@ import * as THREE from "THREE";
 import {WebGLRenderer, PerspectiveCamera, Scene, DirectionalLight, Light, JSONLoader, Geometry, Material, ImageUtils, Texture, MeshPhongMaterial, RepeatWrapping, Mesh, MeshFaceMaterial, NumberKeyframeTrack, Vector3, PointLight, SpotLight, DoubleSide, PlaneGeometry, TextureLoader} from "THREE";
 import Table from "./table";
 import { loadTexture } from "./util";
+import { Paddle } from "./paddle";
+import { Ball } from "./ball";
+
+interface ThreeSize {
+    width: number,
+    depth: number,
+    height: number,
+    scale: number
+}
 
 export default class Game {
     public renderer: WebGLRenderer;
@@ -13,6 +22,9 @@ export default class Game {
     public textureLoader: TextureLoader;
 
     public table: Table;
+    public paddle: Paddle;
+    public paddleOpponent: Paddle;
+    public ball: Ball;
 
     public settings = {
         width: 10,
@@ -20,12 +32,8 @@ export default class Game {
         depth: 20,
         tableWidth: 1.5,
     };
-    public tableSize: {
-        width: number,
-        depth: number,
-        height: number,
-        scale: number
-    }
+    public tableSize: ThreeSize;
+    public paddleSize: ThreeSize;
 
     private canvas: HTMLCanvasElement;
 
@@ -39,8 +47,8 @@ export default class Game {
         this.canvas.style.height = "100%";
 
         this.scene = new Scene();
-        window.scene = this.scene;
-        window.THREE = THREE;
+        (<any>window).scene = this.scene;
+        (<any>window).THREE = THREE;
         this.camera = new PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 20);
         this.scene.add(this.camera);
         this.camera.position.set(0, this.settings.width / 2, this.settings.depth / 2);
@@ -66,7 +74,13 @@ export default class Game {
         this.textureLoader = new TextureLoader();
 
         await this.loadPlanes();
+
         this.table = await Table.setup(this);
+        [this.paddle, this.paddleOpponent] = await Paddle.setupPaddles(this);
+        this.ball = await Ball.setup(this);
+
+        this.camera.position.set(0, this.tableSize.height * 1.7, this.tableSize.depth / 2 * 2.3);
+        this.camera.lookAt(new Vector3(0, this.tableSize.height, 0));
 
         requestAnimationFrame(this.render.bind(this));
     }
@@ -104,7 +118,7 @@ export default class Game {
         }
     }
     update() {
-        
+        this.paddle.rotation.x-=0.01;
     }
     render() {
         this.update();

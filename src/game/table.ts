@@ -28,8 +28,6 @@ export default class Table extends Mesh {
             height: modelSize.height * scale,
             scale,
         };
-        game.camera.position.set(0, game.tableSize.height * 1.7, game.tableSize.depth / 2 * 2.3);
-        game.camera.lookAt(new Vector3(0, game.tableSize.height, 0));
         table.matrixAutoUpdate = false;
         table.updateMatrix();
         game.scene.add(table);
