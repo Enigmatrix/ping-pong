@@ -23,7 +23,7 @@ export default class Game {
 
     public table: Table;
     public paddle: Paddle;
-    public paddleOpponent: Paddle;
+    public paddleOp: Paddle;
     public ball: Ball;
 
     public settings = {
@@ -51,8 +51,6 @@ export default class Game {
         (<any>window).THREE = THREE;
         this.camera = new PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.5, 20);
         this.scene.add(this.camera);
-        this.camera.position.set(0, this.settings.width / 2, this.settings.depth / 2);
-        this.camera.lookAt(this.scene.position);
         
         let light = new PointLight(0xffffff);
         light.position.set(0,2.5,2);
@@ -76,7 +74,7 @@ export default class Game {
         await this.loadPlanes();
 
         this.table = await Table.setup(this);
-        [this.paddle, this.paddleOpponent] = await Paddle.setupPaddles(this);
+        [this.paddle, this.paddleOp] = await Paddle.setupPaddles(this);
         this.ball = await Ball.setup(this);
 
         this.camera.position.set(0, this.tableSize.height * 1.7, this.tableSize.depth / 2 * 2.3);
@@ -118,7 +116,7 @@ export default class Game {
         }
     }
     update() {
-        this.paddle.rotation.x-=0.01;
+        
     }
     render() {
         this.update();
